@@ -128,6 +128,7 @@ func (dcs *defaultConfigSelector) SelectConfig(rpcInfo iresolver.RPCInfo) (*ires
 // The DialOptions returned by WithBlock, WithTimeout,
 // WithReturnConnectionError, and FailOnNonTempDialError are ignored by this
 // function.
+// 创建客户端连接
 func NewClient(target string, opts ...DialOption) (conn *ClientConn, err error) {
 	cc := &ClientConn{
 		target: target,
@@ -159,6 +160,7 @@ func NewClient(target string, opts ...DialOption) (conn *ClientConn, err error) 
 	}
 
 	// Determine the resolver to use.
+	// 获取 自定义的 resolverBuilder
 	if err := cc.initParsedTargetAndResolverBuilder(); err != nil {
 		return nil, err
 	}
@@ -198,6 +200,7 @@ func NewClient(target string, opts ...DialOption) (conn *ClientConn, err error) 
 
 	cc.metricsRecorderList = stats.NewMetricsRecorderList(cc.dopts.copts.StatsHandlers)
 
+	// 通过 resolverBuilder.Build 方法，解析服务地址，并且监听服务地址的变化
 	cc.initIdleStateLocked() // Safe to call without the lock, since nothing else has a reference to cc.
 	cc.idlenessMgr = idle.NewManager((*idler)(cc), cc.dopts.idleTimeout)
 
@@ -348,6 +351,7 @@ func (cc *ClientConn) exitIdleMode() (err error) {
 
 // initIdleStateLocked initializes common state to how it should be while idle.
 func (cc *ClientConn) initIdleStateLocked() {
+	// 调用自定义的 resolverBuilder 的 Build 方法，返回一个 resolver.Resolver
 	cc.resolverWrapper = newCCResolverWrapper(cc)
 	cc.balancerWrapper = newCCBalancerWrapper(cc)
 	cc.firstResolveEvent = grpcsync.NewEvent()

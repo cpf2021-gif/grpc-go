@@ -78,6 +78,7 @@ func (ccr *ccResolverWrapper) start() error {
 			Authority:            ccr.cc.authority,
 		}
 		var err error
+		// 调用 自定义的 resolverBuilder - 从etcd中获取服务地址 - 并且监听服务地址的变化，通过ccResolverWrapper.UpdateState()方法更新服务地址
 		ccr.resolver, err = ccr.cc.resolverBuilder.Build(ccr.cc.parsedTarget, ccr, opts)
 		errCh <- err
 	})
